@@ -1,0 +1,25 @@
+{
+  "name": "@betomorrow/i18n-type-generator",
+  "version": "1.0.0",
+  "description": "Generate TS type for your translations keys and interpolation values",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BeTomorrow/i18n-type-generator.git"
+  },
+  "keywords": [
+    "i18n",
+    "type",
+    "keys",
+    "interpolation"
+  ],
+  "author": "Fabien Drault",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BeTomorrow/i18n-type-generator/issues"
+  },
+  "homepage": "https://github.com/BeTomorrow/i18n-type-generator#readme"
+}
