@@ -1,17 +1,9 @@
+import { WordingEntryTemplateData } from "../templates/template-type";
 import { findInterpolations } from "./find-interpolation";
 import { isEnumerable } from "./is-enumerable";
 
 type WordingKey = string;
 type Translation = string;
-
-interface InterpolationTemplateData {
-  name: string;
-  type: "string" | "number";
-}
-interface WordingEntryTemplateData {
-  key: WordingKey;
-  interpolations: InterpolationTemplateData[];
-}
 
 interface WordingEntry {
   key: WordingKey;
@@ -34,17 +26,13 @@ export function generateTemplateData(
   translations: Record<WordingKey, Translation>,
   overwriteConfiguration: Partial<GeneratorConfiguration> = {}
 ): WordingEntryTemplateData[] {
-  const configuration = { ...defaultConfiguration, ...overwriteConfiguration };
+  const config = { ...defaultConfiguration, ...overwriteConfiguration };
   const entries: Map<WordingKey, WordingEntry> = new Map();
+
   (Object.entries(translations) as [WordingKey, Translation][]).forEach(
     ([key, translation]) => {
-      const wordingEntry = processTranslation(
-        key,
-        translation,
-        entries,
-        configuration
-      );
-      entries.set(wordingEntry.key, wordingEntry);
+      const entry = processTranslation(key, translation, entries, config);
+      entries.set(entry.key, entry);
     }
   );
   return mapToTemplateData(entries);
@@ -70,46 +58,35 @@ function processTranslation(
   const { detectPlurial, detectInterpolation } = configuration;
 
   const interpolationsNames = findInterpolations(translation);
-  const interpolationsMappedType = new Map<string, InterpolationType>(
-    interpolationsNames.map((it) => [it, "string"])
-  );
+  const interpolations = detectInterpolation
+    ? new Map<string, InterpolationType>(
+        interpolationsNames.map((name) => [name, "string"])
+      )
+    : new Map();
 
   if (detectPlurial && isEnumerable(key)) {
     const shrunkKey = removeLastPart(key);
-    interpolationsMappedType.set("count", "number");
+    interpolations.set("count", "number");
 
     if (entries.has(shrunkKey)) {
-      // If the entry for the shrunk key already exists, merge interpolations
+      // If the entry already exists, merge interpolations
       const existingEntry = entries.get(shrunkKey)!;
-      return createWordingEntry(
-        shrunkKey,
-        mergeInterpolations(
+      return {
+        key: shrunkKey,
+        interpolations: mergeInterpolations(
           existingEntry.interpolations,
-          interpolationsMappedType
-        )
-      );
+          interpolations
+        ),
+      };
     } else {
-      return createWordingEntry(shrunkKey, interpolationsMappedType);
+      return { key: shrunkKey, interpolations };
     }
   }
-  if (detectInterpolation) {
-    return createWordingEntry(key, interpolationsMappedType);
-  }
-  return createWordingEntry(key, new Map());
+  return { key, interpolations };
 }
 
 const removeLastPart = (key: WordingKey, delimiter = ".") =>
   key.split(delimiter).slice(0, -1).join(delimiter);
-
-function createWordingEntry(
-  key: WordingKey,
-  interpolationTypes: Map<string, InterpolationType>
-): WordingEntry {
-  return {
-    key,
-    interpolations: interpolationTypes,
-  };
-}
 
 function mergeInterpolations(
   existingInterpolations: Map<string, InterpolationType>,
