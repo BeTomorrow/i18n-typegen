@@ -6,13 +6,14 @@ export function readConfigFile(configPath: string): Configuration {
     return JSON.parse(configData);
   } catch (error) {
     console.error(
-      `Error reading or parsing the config file: ${(error as Error).message}`
+      'Missing configuration file. \n\
+Run "npm run i18n-typegen init" to generate one\n'
     );
     process.exit(1);
   }
 }
 
-type InputFormat = "flatten";
+type InputFormat = "flatten" | "nested";
 
 export interface Configuration {
   input: {

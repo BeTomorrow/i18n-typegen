@@ -3,8 +3,8 @@ import * as fsExtra from "fs-extra";
 import Mustache from "mustache";
 import * as path from "path";
 import { Configuration } from "../config/config-loader";
-import { generateTemplateData } from "../wording/generate-template-data";
-import { readWordingFile } from "../wording/wording-loader";
+import { generateTemplateData } from "../translation/generate-template-data";
+import { loadWordings } from "../wording/wording-loader";
 
 function openTemplate() {
   try {
@@ -35,8 +35,8 @@ const utilityChar = {
 export function generateType(configuration: Configuration) {
   const template = openTemplate();
 
-  const translations = readWordingFile(configuration.input.path);
-  const templateData = generateTemplateData(translations);
+  const wordings = loadWordings(configuration);
+  const templateData = generateTemplateData(wordings);
 
   const generatedType = Mustache.render(template, {
     keys: templateData,

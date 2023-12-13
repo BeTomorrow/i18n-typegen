@@ -1,7 +1,8 @@
 // src/index.ts
 import * as commander from "commander";
 import * as path from "path";
-import { i18nTypegen } from "./command/i18n-typegen";
+import { codegen } from "./command/codegen";
+import { init } from "./command/init";
 import { readConfigFile } from "./config/config-loader";
 
 function main() {
@@ -10,23 +11,28 @@ function main() {
   program
     .version("1.0.0")
     .description(
-      "Generate TS type for your translations keys and interpolation values"
+      "Generate TS type for your translation keys and interpolations"
     );
 
   program
-    .command("i18n-typegen")
+    .command("codegen")
     .option(
       "-c, --config <path>",
       "Path to the config file",
-      "i18n-config.json"
+      "i18n-type.config.json"
     )
-    .description("Generate types")
+    .description("Generate i18n types")
     .action((cmd) => {
       const configPath = path.resolve(cmd.config);
       const config = readConfigFile(configPath);
-      console.log("Config:", config);
-      i18nTypegen(config);
+
+      codegen(config);
     });
+
+  program
+    .command("init")
+    .description("Initialize i18n-config file")
+    .action(() => init());
 
   program.parse(process.argv);
 

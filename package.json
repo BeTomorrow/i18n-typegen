@@ -5,7 +5,11 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "test": "jest"
+    "test": "jest",
+    "build": "tsc -p . && cp ./src/templates/translations.mustache ./dist/templates/translations.mustache"
+  },
+  "bin": {
+    "i18n-type": "dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -36,5 +40,8 @@
     "commander": "^11.1.0",
     "fs-extra": "^11.2.0",
     "mustache": "^4.2.0"
-  }
+  },
+  "files": [
+    "dist/"
+  ]
 }

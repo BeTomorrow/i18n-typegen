@@ -1,9 +1,0 @@
-{
-  "input": {
-    "format": "flatten",
-    "path": "./i18n/en.json"
-  },
-  "output": {
-    "path": "./i18n/translations.d.ts"
-  }
-}
