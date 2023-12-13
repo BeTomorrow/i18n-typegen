@@ -1,4 +1,3 @@
-// src/index.ts
 import * as commander from "commander";
 import * as path from "path";
 import { codegen } from "./command/codegen";

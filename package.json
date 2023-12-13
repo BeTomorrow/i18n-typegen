@@ -1,15 +1,13 @@
 {
-  "name": "@betomorrow/i18n-type-generator",
+  "name": "@betomorrow/i18n-typegen",
   "version": "1.0.0",
   "description": "Generate TS type for your translations keys and interpolation values",
   "main": "dist/index.js",
+  "bin": "bin/i18n-typegen",
   "scripts": {
     "start": "ts-node src/index.ts",
     "test": "jest",
     "build": "tsc -p . && cp ./src/templates/translations.mustache ./dist/templates/translations.mustache"
-  },
-  "bin": {
-    "i18n-type": "dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -42,6 +40,7 @@
     "mustache": "^4.2.0"
   },
   "files": [
-    "dist/"
+    "dist/",
+    "bin/"
   ]
 }
