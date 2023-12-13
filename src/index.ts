@@ -1,6 +1,7 @@
 // src/index.ts
 import * as commander from "commander";
 import * as path from "path";
+import { i18nTypegen } from "./command/i18n-typegen";
 import { readConfigFile } from "./config/config-loader";
 
 function main() {
@@ -24,6 +25,7 @@ function main() {
       const configPath = path.resolve(cmd.config);
       const config = readConfigFile(configPath);
       console.log("Config:", config);
+      i18nTypegen(config);
     });
 
   program.parse(process.argv);
