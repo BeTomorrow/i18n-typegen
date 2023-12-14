@@ -1,0 +1,46 @@
+{
+  "name": "@betomorrow/i18n-typegen",
+  "version": "1.0.0",
+  "description": "Generate TS type for your translations keys and interpolation values",
+  "main": "dist/index.js",
+  "bin": "bin/i18n-typegen",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "test": "jest",
+    "build": "tsc -p . && cp ./src/templates/translations.mustache ./dist/templates/translations.mustache"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BeTomorrow/i18n-type-generator.git"
+  },
+  "keywords": [
+    "i18n",
+    "type",
+    "keys",
+    "interpolation"
+  ],
+  "author": "Fabien Drault",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BeTomorrow/i18n-type-generator/issues"
+  },
+  "homepage": "https://github.com/BeTomorrow/i18n-type-generator#readme",
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/jest": "^29.5.11",
+    "@types/mustache": "^4.2.5",
+    "@types/node": "^20.10.4",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "fs-extra": "^11.2.0",
+    "mustache": "^4.2.0"
+  },
+  "files": [
+    "dist/",
+    "bin/"
+  ]
+}
