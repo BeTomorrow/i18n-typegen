@@ -1,6 +1,6 @@
 {
   "name": "@betomorrow/i18n-typegen",
-  "version": "1.0.0-rc.0",
+  "version": "1.0.0",
   "description": "Generate TS type for your translations keys and interpolation values",
   "main": "dist/index.js",
   "bin": "bin/i18n-typegen",
@@ -25,6 +25,9 @@
     "url": "https://github.com/BeTomorrow/i18n-typegen/issues"
   },
   "homepage": "https://github.com/BeTomorrow/i18n-typegen#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/jest": "^29.5.11",

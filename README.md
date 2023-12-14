@@ -12,7 +12,7 @@ Generate TS type for your translations keys and interpolate values
 ### Installation
 
 ```bash
-npm install @betomorrow/i18n-typegen
+npm install --save-dev @betomorrow/i18n-typegen
 ```
 
 ### Configuration
