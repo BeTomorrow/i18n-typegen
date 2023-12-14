@@ -14,7 +14,7 @@ describe("generateType", () => {
 
     expect(result[0]).toEqual({
       key: "day",
-      interpolations: [{ name: "count", type: "number" }],
+      interpolations: [{ name: "count", type: "number", last: true }],
     });
   });
 
@@ -35,7 +35,7 @@ describe("generateType", () => {
     });
     expect(result[1]).toEqual({
       key: "day.other",
-      interpolations: [{ name: "count", type: "string" }],
+      interpolations: [{ name: "count", type: "string", last: true }],
     });
   });
 
@@ -52,7 +52,7 @@ describe("generateType", () => {
       key: "greeting",
       interpolations: [
         { name: "firstName", type: "string" },
-        { name: "familyName", type: "string" },
+        { name: "familyName", type: "string", last: true },
       ],
     });
   });
@@ -73,7 +73,7 @@ describe("generateType", () => {
       interpolations: [
         { name: "mood", type: "string" },
         { name: "count", type: "number" },
-        { name: "moods", type: "string" },
+        { name: "moods", type: "string", last: true },
       ],
     });
   });
