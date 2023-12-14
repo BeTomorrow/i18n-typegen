@@ -1,4 +1,7 @@
-import { WordingEntryTemplateData } from "../templates/template-type";
+import {
+  InterpolationTemplateData,
+  WordingEntryTemplateData,
+} from "../templates/template-type";
 import { findInterpolations } from "./find-interpolation";
 import { isEnumerable } from "./is-enumerable";
 
@@ -43,10 +46,19 @@ function mapToTemplateData(
 ): WordingEntryTemplateData[] {
   return Array.from(entries.values()).map((it) => ({
     key: it.key,
-    interpolations: Array.from(it.interpolations.entries()).map(
-      ([name, type]) => ({ name, type })
-    ),
+    interpolations: interpolationsMapToTemplate(it.interpolations),
   }));
+}
+
+function interpolationsMapToTemplate(
+  interpolations: Map<string, InterpolationType>
+) {
+  const interpolationArray: InterpolationTemplateData[] = Array.from(
+    interpolations.entries()
+  ).map(([name, type]) => ({ name, type }));
+  if (interpolationArray.length > 0)
+    interpolationArray[interpolationArray.length - 1].last = true;
+  return interpolationArray;
 }
 
 function processTranslation(

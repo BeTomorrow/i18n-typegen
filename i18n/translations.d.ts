@@ -7,8 +7,8 @@
  
 declare module "translations" {
 	type Translations = {
-		"greeting": {firstName: string ;familyName: string ;};
-		"duration.day": {count: number ;};
+		"greeting": { firstName: string;  familyName: string };
+		"duration.day": { count: number };
 	};
 
 	type TranslationKeys = keyof Translations;
