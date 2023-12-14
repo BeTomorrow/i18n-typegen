@@ -2,5 +2,6 @@
   "greeting": "Hello {{firstName}} {{familyName}}!",
   "duration.day.one": "1 day",
   "duration.day.other": "{{count}} days",
-  "duration.day.zero": "0 day"
+  "duration.day.zero": "0 day",
+  "goodbye": "Goodbye"
 }
