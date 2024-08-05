@@ -1,0 +1,30 @@
+{
+  "input": {
+    "format": "nested",
+    "path": "./input/default.json"
+  },
+  "output": {
+    "path": "./output/default.d.ts"
+  },
+  "rules": [
+    {
+      "//": "Add pluralization placeholders",
+      "condition": { "keyEndsWith": ["zero", "one", "other"] },
+      "transformer": {
+        "addPlaceholder": { "name": "count", "type": ["number", "string"] },
+        "removeLastPart": true
+      }
+    },
+    {
+      "//": "Add interpolation values for matched placeholders",
+      "condition": { "placeholderPattern": { "prefix": "{{", "suffix": "}}" } },
+      "transformer": {
+        "addMatchedPlaceholder": { "type": ["string", "number"] }
+      }
+    }
+  ],
+  "extra": {
+    "prettierIgnore": true,
+    "eslintDisablePrettier": false
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "animals": {
+    "one": "{{count}} animal",
+    "other": "{{count}} animals",
+    "zero": "No animal"
+  },
+  "welcome": "Welcome {{name}}",
+  "age": "{{months}}m {{days}}d",
+  "lorem": "Culpa et aliquip proident adipisicing in."
+}
