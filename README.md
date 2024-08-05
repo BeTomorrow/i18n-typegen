@@ -70,11 +70,32 @@ translate("goodbye"); // OK
 ```json
 {
   "input": {
-    "format": "flatten",
-    "path": "./i18n/en.json"
+    "format": "nested",
+    "path": "./input/default.json"
   },
   "output": {
-    "path": "./i18n/translations.d.ts"
+    "path": "./output/default.d.ts"
+  },
+  "rules": [
+    {
+      "//": "Add pluralization placeholders",
+      "condition": { "keyEndsWith": ["zero", "one", "other"] },
+      "transformer": {
+        "addPlaceholder": { "name": "count", "type": ["number", "string"] },
+        "removeLastPart": true
+      }
+    },
+    {
+      "//": "Add interpolation values for matched placeholders",
+      "condition": { "placeholderPattern": { "prefix": "{{", "suffix": "}}" } },
+      "transformer": {
+        "addMatchedPlaceholder": { "type": ["string", "number"] }
+      }
+    }
+  ],
+  "extra": {
+    "prettierIgnore": true,
+    "eslintDisablePrettier": false
   }
 }
 ```
@@ -82,6 +103,9 @@ translate("goodbye"); // OK
 - input `format` support JSON translations file with
   - `flatten` keys like `home.header.greeting`
   - nested scoped dictionnaries: `{ home: { header: { greeting: "hello" } } }`
+- extra de-opt generated files from prettier or eslint prettier rule to comply with specific configurations.
+  - `prettierIgnore` add `// prettier-ignore` in generated file.
+  - `eslintDisablePrettier` add `/* eslint-disable prettier/prettier */` in generated file.
 
 ### Recommended Toolbox
 
@@ -103,10 +127,7 @@ type MyCustomI18n = Omit<I18n, "t"> & {
    * Same as `t` without any type checking.
    * Should be used only when the translation key cannot be statically inferred.
    */
-  unsafeTranslate: (
-    key: string,
-    interpolations?: Record<string, unknown>
-  ) => string;
+  unsafeTranslate: (key: string, interpolations?: Record<string, unknown>) => string;
 };
 
 class MyInternationalization extends I18n {
