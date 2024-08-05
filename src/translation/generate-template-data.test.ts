@@ -1,5 +1,6 @@
 import { generateTemplateData } from "./generate-template-data";
 
+const mockConfig = { input: {} as any, output: {} as any, rules: [] };
 describe("generateType", () => {
   it("should handle pluralization correctly", () => {
     const translations = {
@@ -8,13 +9,24 @@ describe("generateType", () => {
       "day.zero": "0 day",
     };
 
-    const result = generateTemplateData(translations, { detectPlurial: true });
+    const result = generateTemplateData(translations, {
+      ...mockConfig,
+      rules: [
+        {
+          condition: { keyEndsWith: ["one", "other", "zero"] },
+          transformer: {
+            addPlaceholder: { name: "count", type: ["number"] },
+            removeLastPart: true,
+          },
+        },
+      ],
+    });
 
     expect(result).toHaveLength(1);
 
     expect(result[0]).toEqual({
       key: "day",
-      interpolations: [{ name: "count", type: "number", last: true }],
+      interpolations: [{ name: "count", type: [{ value: "number", last: true }], last: true }],
     });
   });
 
@@ -25,7 +37,7 @@ describe("generateType", () => {
       "day.zero": "0 day",
     };
 
-    const result = generateTemplateData(translations, { detectPlurial: false });
+    const result = generateTemplateData(translations, mockConfig);
 
     expect(result).toHaveLength(3);
 
@@ -35,7 +47,7 @@ describe("generateType", () => {
     });
     expect(result[1]).toEqual({
       key: "day.other",
-      interpolations: [{ name: "count", type: "string", last: true }],
+      interpolations: [],
     });
   });
 
@@ -44,15 +56,30 @@ describe("generateType", () => {
       greeting: "Hello {{firstName}} {{familyName}}",
     };
 
-    const result = generateTemplateData(translations);
+    const result = generateTemplateData(translations, {
+      ...mockConfig,
+      rules: [
+        {
+          condition: { placeholderPattern: { prefix: "{{", suffix: "}}" } },
+          transformer: { addMatchedPlaceholder: { type: ["string", "number"] } },
+        },
+      ],
+    });
 
     expect(result).toHaveLength(1);
 
     expect(result[0]).toEqual({
       key: "greeting",
       interpolations: [
-        { name: "firstName", type: "string" },
-        { name: "familyName", type: "string", last: true },
+        {
+          name: "firstName",
+          type: [{ value: "string" }, { value: "number", last: true }],
+        },
+        {
+          name: "familyName",
+          type: [{ value: "string" }, { value: "number", last: true }],
+          last: true,
+        },
       ],
     });
   });
@@ -64,16 +91,27 @@ describe("generateType", () => {
       "day.zero": "0 {{mood}} day",
     };
 
-    const result = generateTemplateData(translations);
+    const rules = [
+      {
+        condition: { placeholderPattern: { prefix: "{{", suffix: "}}" } },
+        transformer: { addMatchedPlaceholder: { type: ["string"] } },
+      },
+      {
+        condition: { keyEndsWith: ["one", "other", "zero"] },
+        transformer: { addPlaceholder: { name: "count", type: ["number"] }, removeLastPart: true },
+      },
+    ];
+
+    const result = generateTemplateData(translations, { ...mockConfig, rules });
 
     expect(result).toHaveLength(1);
 
     expect(result[0]).toEqual({
       key: "day",
       interpolations: [
-        { name: "mood", type: "string" },
-        { name: "count", type: "number" },
-        { name: "moods", type: "string", last: true },
+        { name: "count", type: [{ value: "number" }, { value: "string", last: true }] },
+        { name: "mood", type: [{ value: "string", last: true }] },
+        { name: "moods", type: [{ value: "string", last: true }], last: true },
       ],
     });
   });

@@ -1,10 +1,15 @@
 export interface InterpolationTemplateData {
   name: string;
-  type: "string" | "number";
+  type: InterpolationTypeTemplateData[];
   last?: boolean;
 }
 
-export interface WordingEntryTemplateData {
+export interface InterpolationTypeTemplateData {
+  value: string;
+  last?: boolean;
+}
+
+export interface TranslationEntryTemplateData {
   key: string;
   interpolations: InterpolationTemplateData[];
 }

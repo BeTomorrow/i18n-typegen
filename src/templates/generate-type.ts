@@ -36,7 +36,7 @@ export function generateType(configuration: Configuration) {
   const template = openTemplate();
 
   const wordings = loadWordings(configuration);
-  const templateData = generateTemplateData(wordings);
+  const templateData = generateTemplateData(wordings, configuration);
 
   const generatedType = Mustache.render(template, {
     keys: templateData,
