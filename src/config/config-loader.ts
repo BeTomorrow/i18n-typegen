@@ -29,4 +29,8 @@ export interface Configuration {
     path: string;
   };
   rules: Rule[];
+  extra?: {
+    prettierIgnore: boolean;
+    eslintDisablePrettier: boolean;
+  };
 }

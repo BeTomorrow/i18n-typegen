@@ -11,9 +11,7 @@ function openTemplate() {
     const templatePath = path.join(__dirname, "translations.mustache");
     return fs.readFileSync(templatePath, "utf-8");
   } catch (error) {
-    console.error(
-      `Error reading or parsing the template file: ${(error as Error).message}`
-    );
+    console.error(`Error reading or parsing the template file: ${(error as Error).message}`);
     process.exit(1);
   }
 }
@@ -41,6 +39,7 @@ export function generateType(configuration: Configuration) {
   const generatedType = Mustache.render(template, {
     keys: templateData,
     ...utilityChar,
+    ...configuration.extra,
   });
 
   writeFile(generatedType, configuration.output.path);
