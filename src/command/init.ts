@@ -11,6 +11,23 @@ export function init() {
     output: {
       path: "./i18n/translations.d.ts",
     },
+    rules: [
+      {
+        "//": "Add pluralization placeholders",
+        condition: { keyEndsWith: ["zero", "one", "other"] },
+        transformer: {
+          addPlaceholder: { name: "count", type: ["number"] },
+          removeLastPart: true,
+        },
+      },
+      {
+        "//": "Add interpolation values for matched placeholders",
+        condition: { placeholderPattern: { prefix: "{{", suffix: "}}" } },
+        transformer: {
+          addMatchedPlaceholder: { type: ["string", "number"] },
+        },
+      },
+    ],
   };
   console.log(`Initialize config file ${configurationFilename}\n`);
   writeDefaultConfiguration(defaultConfiguration, configurationFilename);

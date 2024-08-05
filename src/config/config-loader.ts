@@ -1,4 +1,6 @@
 import * as fs from "fs";
+import { KeyEndsWithRule } from "../rules/key";
+import { TranslationMatchRule } from "../rules/translation";
 
 export function readConfigFile(configPath: string): Configuration {
   try {
@@ -15,6 +17,9 @@ Run "npm run i18n-typegen init" to generate one\n'
 
 type InputFormat = "flatten" | "nested";
 
+export type Rule = (TranslationMatchRule | KeyEndsWithRule) & {
+  "//"?: string;
+};
 export interface Configuration {
   input: {
     format: InputFormat;
@@ -23,4 +28,5 @@ export interface Configuration {
   output: {
     path: string;
   };
+  rules: Rule[];
 }

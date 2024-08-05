@@ -1,116 +1,127 @@
+import { Configuration } from "../config/config-loader";
+import { applyKeyEndsWithRule, isKeyRule } from "../rules/key";
+import { applyTranslationMatchRule, isTranslationRule } from "../rules/translation";
 import {
-  InterpolationTemplateData,
-  WordingEntryTemplateData,
+  InterpolationTypeTemplateData,
+  TranslationEntryTemplateData,
 } from "../templates/template-type";
-import { findInterpolations } from "./find-interpolation";
-import { isEnumerable } from "./is-enumerable";
 
-type WordingKey = string;
+type TranslationKey = string;
 type Translation = string;
 
-interface WordingEntry {
-  key: WordingKey;
-  interpolations: Map<string, InterpolationType>;
+export interface TranslationEntry {
+  key: TranslationKey;
+  translation: string;
+  interpolations: Map<string, InterpolationType[]>;
 }
 
-interface GeneratorConfiguration {
-  detectPlurial: boolean;
-  detectInterpolation: boolean;
+export type InterpolationType = string;
+
+function createEntry(item: { key: string; translation: string }): TranslationEntry {
+  return {
+    key: item.key,
+    translation: item.translation,
+    interpolations: new Map(),
+  };
 }
-
-type InterpolationType = "string" | "number";
-
-const defaultConfiguration = {
-  detectPlurial: true,
-  detectInterpolation: true,
-};
-
 export function generateTemplateData(
-  translations: Record<WordingKey, Translation>,
-  overwriteConfiguration: Partial<GeneratorConfiguration> = {}
-): WordingEntryTemplateData[] {
-  const config = { ...defaultConfiguration, ...overwriteConfiguration };
-  const entries: Map<WordingKey, WordingEntry> = new Map();
+  translations: Record<TranslationKey, Translation>,
+  configuration: Configuration
+): TranslationEntryTemplateData[] {
+  const entries: TranslationEntry[] = [];
 
-  (Object.entries(translations) as [WordingKey, Translation][]).forEach(
+  (Object.entries(translations) as [TranslationKey, Translation][]).forEach(
     ([key, translation]) => {
-      const entry = processTranslation(key, translation, entries, config);
-      entries.set(entry.key, entry);
+      const entry = processTranslation(createEntry({ key, translation }), configuration);
+      entries.push(entry);
     }
   );
-  return mapToTemplateData(entries);
+  return toTemplateData(entries);
 }
 
-function mapToTemplateData(
-  entries: Map<string, WordingEntry>
-): WordingEntryTemplateData[] {
-  return Array.from(entries.values()).map((it) => ({
-    key: it.key,
-    interpolations: interpolationsMapToTemplate(it.interpolations),
-  }));
+function toTemplateData(entries: TranslationEntry[]): TranslationEntryTemplateData[] {
+  const entryMap = new Map<string, TranslationEntryTemplateData>();
+
+  for (const entry of entries) {
+    // Retrieve or initialize the interpolations for the current entry key
+    let interpolations = entryMap.get(entry.key)?.interpolations ?? [];
+
+    // Add new interpolations from the entry
+    for (const [name, types] of entry.interpolations) {
+      const existingInterpolation = interpolations.find((interpol) => interpol.name === name);
+
+      if (existingInterpolation) {
+        // Merge types if the interpolation already exists
+        existingInterpolation.type = mergeUniqueTypes(existingInterpolation.type, types);
+      } else {
+        // Add new interpolation
+        interpolations.push({
+          name,
+          type: types.map((t) => ({ value: t })),
+        });
+      }
+    }
+
+    // Update the entry map
+    entryMap.set(entry.key, { key: entry.key, interpolations });
+  }
+
+  // Set the `last` property
+  for (const entry of entryMap.values()) {
+    const lastInterpolationIndex = entry.interpolations.length - 1;
+    if (lastInterpolationIndex >= 0) {
+      entry.interpolations[lastInterpolationIndex].last = true;
+    }
+
+    for (const interpolation of entry.interpolations) {
+      const lastTypeIndex = interpolation.type.length - 1;
+      if (lastTypeIndex >= 0) {
+        interpolation.type[lastTypeIndex].last = true;
+      }
+    }
+  }
+
+  return Array.from(entryMap.values());
 }
 
-function interpolationsMapToTemplate(
-  interpolations: Map<string, InterpolationType>
-) {
-  const interpolationArray: InterpolationTemplateData[] = Array.from(
-    interpolations.entries()
-  ).map(([name, type]) => ({ name, type }));
-  if (interpolationArray.length > 0)
-    interpolationArray[interpolationArray.length - 1].last = true;
-  return interpolationArray;
+function mergeUniqueTypes(
+  existingTypes: InterpolationTypeTemplateData[],
+  newTypes: string[]
+): InterpolationTypeTemplateData[] {
+  const existingTypeValues = new Set(existingTypes.map((t) => t.value));
+  for (const newType of newTypes) {
+    if (!existingTypeValues.has(newType)) {
+      existingTypes.push({ value: newType });
+    }
+  }
+  return existingTypes;
 }
 
 function processTranslation(
-  key: string,
-  translation: string,
-  entries: Map<string, WordingEntry>,
-  configuration: GeneratorConfiguration
-): WordingEntry {
-  const { detectPlurial, detectInterpolation } = configuration;
+  entry: TranslationEntry,
+  configuration: Configuration
+): TranslationEntry {
+  let result = entry;
 
-  const interpolationsNames = findInterpolations(translation);
-  const interpolations = detectInterpolation
-    ? new Map<string, InterpolationType>(
-        interpolationsNames.map((name) => [name, "string"])
-      )
-    : new Map();
-
-  if (detectPlurial && isEnumerable(key)) {
-    const shrunkKey = removeLastPart(key);
-    interpolations.set("count", "number");
-
-    if (entries.has(shrunkKey)) {
-      // If the entry already exists, merge interpolations
-      const existingEntry = entries.get(shrunkKey)!;
-      return {
-        key: shrunkKey,
-        interpolations: mergeInterpolations(
-          existingEntry.interpolations,
-          interpolations
-        ),
-      };
-    } else {
-      return { key: shrunkKey, interpolations };
+  // Apply key rules first
+  const sortedRules = configuration.rules.sort((a, b) => {
+    if (isKeyRule(a) && !isKeyRule(b)) {
+      return -1;
     }
-  }
-  return { key, interpolations };
-}
-
-const removeLastPart = (key: WordingKey, delimiter = ".") =>
-  key.split(delimiter).slice(0, -1).join(delimiter);
-
-function mergeInterpolations(
-  existingInterpolations: Map<string, InterpolationType>,
-  newInterpolations: Map<string, InterpolationType>
-): Map<string, InterpolationType> {
-  const mergedInterpolations = new Map([...existingInterpolations]);
-
-  newInterpolations.forEach((type, name) => {
-    if (!mergedInterpolations.has(name)) {
-      mergedInterpolations.set(name, type);
+    if (isKeyRule(b) && !isKeyRule(a)) {
+      return 1;
     }
+    return 0;
   });
 
-  return mergedInterpolations;
+  for (const rule of sortedRules) {
+    if (isKeyRule(rule)) {
+      result = applyKeyEndsWithRule(rule, result);
+    }
+    if (isTranslationRule(rule)) {
+      result = applyTranslationMatchRule(rule, result);
+    }
+  }
+
+  return result;
 }
