@@ -24,6 +24,7 @@ exec(`npx ts-node ${binPath} codegen -c "${configPath}"`, (error, stdout, stderr
   // Compare the output file with the snapshot
   if (compareFiles(outputPath, snapshotPath)) {
     console.log("Test passed: Output matches the snapshot.");
+    process.exit(0);
   } else {
     console.log("Test failed: Output does not match the snapshot.");
 
@@ -38,5 +39,6 @@ exec(`npx ts-node ${binPath} codegen -c "${configPath}"`, (error, stdout, stderr
       snapshotContent
     );
     console.log(differences);
+    process.exit(1);
   }
 });

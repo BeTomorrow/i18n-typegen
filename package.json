@@ -62,6 +62,13 @@
     "useTabs": false
   },
   "release-it": {
+    "hooks": {
+      "before:init": [
+        "npm run build",
+        "npm run test",
+        "npm run snapshot"
+      ]
+    },
     "git": {
       "commitMessage": "chore: release ${version}",
       "tagName": "v${version}"
