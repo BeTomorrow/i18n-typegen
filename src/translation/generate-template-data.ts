@@ -67,17 +67,18 @@ function toTemplateData(entries: TranslationEntry[]): TranslationEntryTemplateDa
   }
 
   // Set the `last` property
+  // TODO: could be improved by recursively check if there is any array, and adding the "last" property accordingly.
   for (const entry of entryMap.values()) {
-    const lastInterpolationIndex = entry.interpolations.length - 1;
-    if (lastInterpolationIndex >= 0) {
-      entry.interpolations[lastInterpolationIndex].last = true;
-    }
+    entry.interpolations = entry.interpolations.map((it, index, array) => ({
+      ...it,
+      last: index === array.length - 1,
+    }));
 
     for (const interpolation of entry.interpolations) {
-      const lastTypeIndex = interpolation.type.length - 1;
-      if (lastTypeIndex >= 0) {
-        interpolation.type[lastTypeIndex].last = true;
-      }
+      interpolation.type = interpolation.type.map((type, index, array) => ({
+        ...type,
+        last: index === array.length - 1,
+      }));
     }
   }
 
@@ -88,13 +89,8 @@ function mergeUniqueTypes(
   existingTypes: InterpolationTypeTemplateData[],
   newTypes: string[]
 ): InterpolationTypeTemplateData[] {
-  const existingTypeValues = new Set(existingTypes.map((t) => t.value));
-  for (const newType of newTypes) {
-    if (!existingTypeValues.has(newType)) {
-      existingTypes.push({ value: newType });
-    }
-  }
-  return existingTypes;
+  const existingTypeValues = new Set([...existingTypes.map((t) => t.value), ...newTypes]);
+  return Array.from(existingTypeValues).map((it) => ({ value: it }));
 }
 
 function processTranslation(

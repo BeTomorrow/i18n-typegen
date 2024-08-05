@@ -28,6 +28,10 @@ export function init() {
         },
       },
     ],
+    extra: {
+      prettierIgnore: true,
+      eslintDisablePrettier: false,
+    },
   };
   console.log(`Initialize config file ${configurationFilename}\n`);
   writeDefaultConfiguration(defaultConfiguration, configurationFilename);
