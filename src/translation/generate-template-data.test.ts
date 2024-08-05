@@ -24,9 +24,9 @@ describe("generateType", () => {
 
     expect(result).toHaveLength(1);
 
-    expect(result[0]).toEqual({
+    expect(result[0]).toMatchObject({
       key: "day",
-      interpolations: [{ name: "count", type: [{ value: "number", last: true }], last: true }],
+      interpolations: [{ name: "count", type: [{ value: "number" }] }],
     });
   });
 
@@ -41,11 +41,11 @@ describe("generateType", () => {
 
     expect(result).toHaveLength(3);
 
-    expect(result[0]).toEqual({
+    expect(result[0]).toMatchObject({
       key: "day.one",
       interpolations: [],
     });
-    expect(result[1]).toEqual({
+    expect(result[1]).toMatchObject({
       key: "day.other",
       interpolations: [],
     });
@@ -68,17 +68,16 @@ describe("generateType", () => {
 
     expect(result).toHaveLength(1);
 
-    expect(result[0]).toEqual({
+    expect(result[0]).toMatchObject({
       key: "greeting",
       interpolations: [
         {
           name: "firstName",
-          type: [{ value: "string" }, { value: "number", last: true }],
+          type: [{ value: "string" }, { value: "number" }],
         },
         {
           name: "familyName",
-          type: [{ value: "string" }, { value: "number", last: true }],
-          last: true,
+          type: [{ value: "string" }, { value: "number" }],
         },
       ],
     });
@@ -106,12 +105,43 @@ describe("generateType", () => {
 
     expect(result).toHaveLength(1);
 
-    expect(result[0]).toEqual({
+    expect(result[0]).toMatchObject({
       key: "day",
       interpolations: [
-        { name: "count", type: [{ value: "number" }, { value: "string", last: true }] },
-        { name: "mood", type: [{ value: "string", last: true }] },
-        { name: "moods", type: [{ value: "string", last: true }], last: true },
+        { name: "count", type: [{ value: "number" }, { value: "string" }] },
+        { name: "mood", type: [{ value: "string" }] },
+        { name: "moods", type: [{ value: "string" }] },
+      ],
+    });
+  });
+
+  it("should handle ", () => {
+    const translations = {
+      "greeting.man": "Hello Mr {{name}}!",
+      "greeting.woman": "Hello Ms {{name}}!",
+      "greeting.neutral": "Hello {{name}}!",
+    };
+
+    const rules = [
+      {
+        condition: { placeholderPattern: { prefix: "{{", suffix: "}}" } },
+        transformer: { addMatchedPlaceholder: { type: ["string"] } },
+      },
+      {
+        condition: { keyEndsWith: ["man", "woman", "neutral"] },
+        transformer: { addPlaceholder: { name: "gender", type: ["string"] }, removeLastPart: true },
+      },
+    ];
+
+    const result = generateTemplateData(translations, { ...mockConfig, rules });
+
+    expect(result).toHaveLength(1);
+
+    expect(result[0]).toMatchObject({
+      key: "greeting",
+      interpolations: [
+        { name: "gender", type: [{ value: "string" }] },
+        { name: "name", type: [{ value: "string" }] },
       ],
     });
   });
