@@ -108,7 +108,7 @@ describe("generateType", () => {
     expect(result[0]).toMatchObject({
       key: "day",
       interpolations: [
-        { name: "count", type: [{ value: "number" }, { value: "string" }] },
+        { name: "count", type: [{ value: "number" }] },
         { name: "mood", type: [{ value: "string" }] },
         { name: "moods", type: [{ value: "string" }] },
       ],

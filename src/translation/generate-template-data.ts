@@ -5,6 +5,7 @@ import {
   InterpolationTypeTemplateData,
   TranslationEntryTemplateData,
 } from "../templates/template-type";
+import { intersection } from "./set";
 
 type TranslationKey = string;
 type Translation = string;
@@ -51,8 +52,8 @@ function toTemplateData(entries: TranslationEntry[]): TranslationEntryTemplateDa
       const existingInterpolation = interpolations.find((interpol) => interpol.name === name);
 
       if (existingInterpolation) {
-        // Merge types if the interpolation already exists
-        existingInterpolation.type = mergeUniqueTypes(existingInterpolation.type, types);
+        // Intersect types if the interpolation already exists to provide the stricter type
+        existingInterpolation.type = intersectTypes(existingInterpolation.type, types);
       } else {
         // Add new interpolation
         interpolations.push({
@@ -85,12 +86,20 @@ function toTemplateData(entries: TranslationEntry[]): TranslationEntryTemplateDa
   return Array.from(entryMap.values());
 }
 
-function mergeUniqueTypes(
+function intersectTypes(
   existingTypes: InterpolationTypeTemplateData[],
   newTypes: string[]
 ): InterpolationTypeTemplateData[] {
-  const existingTypeValues = new Set([...existingTypes.map((t) => t.value), ...newTypes]);
-  return Array.from(existingTypeValues).map((it) => ({ value: it }));
+  const current = new Set(existingTypes.map((t) => t.value));
+  const other = new Set(newTypes);
+
+  const intersect = intersection(current, other);
+  if (intersect.size > 0) {
+    return Array.from(intersect).map((it) => ({ value: it }));
+  } else {
+    // if not types are in common, the type is defined by the first encountered rule.
+    return existingTypes;
+  }
 }
 
 function processTranslation(
