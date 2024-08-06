@@ -81,7 +81,7 @@ translate("goodbye"); // OK
       "//": "Add pluralization placeholders",
       "condition": { "keyEndsWith": ["zero", "one", "other"] },
       "transformer": {
-        "addPlaceholder": { "name": "count", "type": ["number", "string"] },
+        "addPlaceholder": { "name": "count", "type": ["number"] },
         "removeLastPart": true
       }
     },
