@@ -1,4 +1,5 @@
 import { TranslationEntry } from "../translation/generate-template-data";
+import { intersection } from "../translation/set";
 
 export type AddPlaceholderTransformer = {
   addPlaceholder: {
@@ -17,12 +18,11 @@ export function applyAddPlaceholderTransformer(
   transformer: AddPlaceholderTransformer,
   entry: TranslationEntry
 ): TranslationEntry {
-  const previousType =
-    entry.interpolations.get(transformer.addPlaceholder.name) ?? [];
-  entry.interpolations.set(
-    transformer.addPlaceholder.name,
-    previousType.concat(transformer.addPlaceholder.type)
-  );
+  const previousType = new Set(entry.interpolations.get(transformer.addPlaceholder.name) ?? []);
+  const placeholderType = new Set(transformer.addPlaceholder.type);
+  const intersectType =
+    previousType.size > 0 ? intersection(previousType, placeholderType) : placeholderType;
+  entry.interpolations.set(transformer.addPlaceholder.name, Array.from(intersectType));
   return entry;
 }
 
@@ -31,11 +31,11 @@ export function applyAddMatchedPlaceholderTransformer(
   placeholder: string,
   entry: TranslationEntry
 ): TranslationEntry {
-  const previousType = entry.interpolations.get(placeholder) ?? [];
-  entry.interpolations.set(
-    placeholder,
-    previousType.concat(transformer.addMatchedPlaceholder.type)
-  );
+  const previousType = new Set(entry.interpolations.get(placeholder) ?? []);
+  const placeholderType = new Set(transformer.addMatchedPlaceholder.type);
+  const intersectType =
+    previousType.size > 0 ? intersection(previousType, placeholderType) : placeholderType;
+  entry.interpolations.set(placeholder, Array.from(intersectType));
   return entry;
 }
 
