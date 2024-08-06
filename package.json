@@ -1,6 +1,6 @@
 {
   "name": "@betomorrow/i18n-typegen",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Generate TS type for your translations keys and interpolation values",
   "main": "dist/index.js",
   "bin": "bin/i18n-typegen",
