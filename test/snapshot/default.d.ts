@@ -7,7 +7,7 @@
 
 declare module "translations" {
 	type Translations = {
-		"animals": { count: number | string };
+		"animals": { count: number };
 		"welcome": { name: string | number };
 		"age": { months: string | number;  days: string | number };
 		"lorem": undefined;
