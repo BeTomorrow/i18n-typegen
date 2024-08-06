@@ -113,38 +113,12 @@ translate("goodbye"); // OK
 - Styling without trouble your translations on React and React-Native [styled-tagged-text](https://github.com/BeTomorrow/styled-tagged-text)
 - Works great with [i18n-js](https://github.com/fnando/i18n-js)
 
-### Example of my implementation over i18n-js
+### Example of implementation
 
-```typescript
-import { I18n } from "i18n-js";
-import { TranslationFunction } from "translations";
-// Import generated type from translations.d.ts
+See `docs` for complete usage of type generation with some i18n implementations
 
-type MyCustomI18n = Omit<I18n, "t"> & {
-  t: TranslationFunction;
-
-  /**
-   * Same as `t` without any type checking.
-   * Should be used only when the translation key cannot be statically inferred.
-   */
-  unsafeTranslate: (key: string, interpolations?: Record<string, unknown>) => string;
-};
-
-class MyInternationalization extends I18n {
-  unsafeTranslate(key: string, interpolations?: Record<string, unknown>) {
-    return this.t(key, interpolations);
-  }
-}
-
-export const i18n = new MyInternationalization(
-  {
-    fr,
-    en,
-  },
-  { locale: getUserLanguage() }
-) as MyCustomI18n;
-// ^ Apply my custom type to enjoy static translations and interpolations check  !
-```
+- i18n-js [docs/i18n-js.md](docs/i18n-js.md)
+- custom implemetation [docs/custom.md](docs/custom.md)
 
 ## Contribution
 
